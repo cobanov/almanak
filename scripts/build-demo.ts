@@ -6,13 +6,20 @@
 
 import { readdirSync, mkdirSync, copyFileSync, writeFileSync, rmSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import { execFileSync } from 'node:child_process'
 
-const src = join(process.cwd(), 'fixtures', 'demo')
+const root = process.cwd()
+const src = join(root, 'fixtures', 'demo')
 const out = join(process.cwd(), 'public', 'demo')
 
+// The demo archive is generated, not committed, so a fresh clone has none.
+// Building it here rather than failing means `npm run build` works on checkout,
+// which is the command the README tells people to run.
 if (!existsSync(src)) {
-  console.error('fixtures/demo is missing. Run scripts/make-demo-archive.ts first.')
-  process.exit(1)
+  console.log('fixtures/demo is missing, generating it')
+  execFileSync(process.execPath, [join(root, 'scripts', 'make-demo-archive.ts'), src], {
+    stdio: 'inherit',
+  })
 }
 
 if (existsSync(out)) rmSync(out, { recursive: true })
