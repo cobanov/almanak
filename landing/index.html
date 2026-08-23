@@ -392,7 +392,20 @@ ol.steps li p { color:var(--dim); font-size:var(--t-label); margin:var(--s-1) 0 
 .privacy-note { color:var(--dim); font-size:var(--t-small); margin-top:var(--s-5); }
 
 /* ---------- questions ---------- */
-.faq { max-width:var(--measure); }
+/*
+  The heading sits in its own column so the questions can take the width the
+  section above them takes. Left as one narrow column, this block left half the
+  page empty and broke the rhythm of everything above it.
+*/
+.faq-row { display:grid; gap:var(--s-5) var(--gap-column); }
+@media (min-width:1024px){
+  .faq-row { grid-template-columns:repeat(12, minmax(0,1fr)); }
+  .faq-head { grid-column:1 / span 4; }
+  .faq { grid-column:5 / span 8; }
+}
+.faq-head h2 { margin-bottom:var(--s-2); }
+.faq-head .sub { margin-bottom:0; }
+.faq { max-width:none; }
 .faq details { border-bottom:1px solid var(--edge); }
 .faq details:first-child { border-top:1px solid var(--edge); }
 .faq summary {
@@ -613,8 +626,11 @@ footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
 
 
   <section id="faq">
-    <div class="wrap">
-      <h2>Questions</h2>
+    <div class="wrap faq-row">
+      <div class="faq-head">
+        <h2>Questions</h2>
+        <p class="sub">What people ask before handing over an archive.</p>
+      </div>
       <div class="faq">
         <details>
           <summary>How do I open my X (Twitter) archive?</summary>
