@@ -12,6 +12,13 @@
   var veil = document.querySelector('.gate-veil')
   if (frame && veil) {
     veil.addEventListener('click', function () {
+      // Below 768 the frame is a preview: dragging a scrubber inside a phone
+      // -width iframe is not something anyone can do, so the demo opens on its
+      // own instead of becoming interactive in place.
+      if (window.matchMedia('(max-width: 767px)').matches) {
+        location.href = './app/?demo=1'
+        return
+      }
       frame.classList.add('live')
       var f = frame.querySelector('iframe')
       if (f) f.focus()
