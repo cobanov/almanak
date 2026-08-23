@@ -15,6 +15,7 @@
 # The app is held to a stricter policy than the landing page: no remote host
 # at all, which is the promise it makes to anyone opening an archive.
 /app/*
+  X-Robots-Tag: noindex, follow
   Content-Security-Policy: default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; form-action 'none'; frame-ancestors 'self'; base-uri 'none'; object-src 'none'
 
 /*

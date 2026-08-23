@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>almanak: your X archive, finally easy to explore</title>
-<meta name="description" content="Open source, browser-only reader for your X (Twitter) archive. Search every tweet, browse every photo, rebuild threads, and drag through a timeline of your posting history. Nothing is uploaded.">
+<meta name="description" content="Open source viewer for your X (Twitter) archive. Search every tweet, browse every photo, rebuild threads. Runs in your browser; nothing is uploaded.">
 <link rel="canonical" href="https://almanak.cobanov.dev/">
 <link rel="icon" type="image/svg+xml" href="./app/icon.svg">
 <meta name="theme-color" content="#000000">
@@ -391,6 +391,26 @@ ol.steps li p { color:var(--dim); font-size:var(--t-label); margin:var(--s-1) 0 
 }
 .privacy-note { color:var(--dim); font-size:var(--t-small); margin-top:var(--s-5); }
 
+/* ---------- questions ---------- */
+.faq { max-width:var(--measure); }
+.faq details { border-bottom:1px solid var(--edge); }
+.faq details:first-child { border-top:1px solid var(--edge); }
+.faq summary {
+  cursor:pointer; list-style:none; padding:var(--s-4) var(--s-6) var(--s-4) 0;
+  font-size:var(--t-body); font-weight:500; position:relative;
+}
+.faq summary::-webkit-details-marker { display:none }
+.faq summary::after {
+  content:'+'; position:absolute; right:var(--s-2); top:50%; transform:translateY(-50%);
+  color:var(--dim); font-family:var(--mono); font-size:var(--t-body);
+}
+.faq details[open] summary::after { content:'−' }
+.faq summary:hover { color:var(--tungsten) }
+.faq p {
+  margin:0 0 var(--s-4); color:var(--dim);
+  font-size:var(--t-label); line-height:1.6; max-width:none;
+}
+
 .cta { display:flex; gap:var(--gap-inline); flex-wrap:wrap; }
 
 /* ---------- footer ---------- */
@@ -399,6 +419,71 @@ footer .wrap { display:flex; gap:var(--s-4) var(--s-5); flex-wrap:wrap; align-it
 footer .sp { margin-left:auto; display:inline-flex; align-items:center; gap:var(--s-3); }
 footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I open my X (Twitter) archive?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Ask X for your data in Settings, then Your account, then Download an archive of your data. It arrives as a ZIP within a day or two. Drop that ZIP on this page, or pick the unzipped folder, and it opens straight away. There is nothing to install and no account to make."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my archive uploaded anywhere?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. almanak is a static page with no backend, so there is nowhere to send it. Your browser reads the export from your own disk and everything happens in the tab. The source is public if you would rather check than take our word for it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can it read my direct messages?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It never opens them. A single allowlist decides every file the app is allowed to touch, direct-message files are refused outright, and a test suite keeps that true as the code changes."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which browsers work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Chrome and Edge can open a folder directly, which is the smoothest route for a large archive. Firefox and Safari have not shipped the File System Access API yet, so they fall back to dropping the ZIP, which works everywhere."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How large an archive can it handle?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "It parses 200,000 tweets in about two and a half seconds and answers searches in well under a tenth of a second at that size. Media is read one file at a time rather than loaded up front, so a media folder of tens of gigabytes is fine."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does it work with Turkish?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, and deliberately so. Search folds the dotted and dotless i together and peels stacked suffixes, so searching model finds modelleri and searching isik finds IŞIK. General Unicode case folding gets Turkish I and İ wrong in opposite directions, which quietly breaks search in most tools."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does it cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nothing. It is free and MIT licensed, and you can run your own copy from the source."
+      }
+    }
+  ]
+}
+</script>
+
 </head>
 <body>
 
@@ -406,6 +491,8 @@ footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
   <div class="wrap">
     <a class="brand" href="./">almanak</a>
     <nav>
+      <a class="opt" href="#faq">Questions</a>
+      <a class="opt" href="#privacy">Privacy</a>
       <a class="opt" href="https://github.com/cobanov/almanak" aria-label="GitHub"><svg class="mark" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg><span class="label">GitHub</span></a>
       <a href="./app/">Open the app</a>
     </nav>
@@ -524,7 +611,43 @@ footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
     </div>
   </section>
 
-</main></main>
+
+  <section id="faq">
+    <div class="wrap">
+      <h2>Questions</h2>
+      <div class="faq">
+        <details>
+          <summary>How do I open my X (Twitter) archive?</summary>
+          <p>Ask X for your data in Settings, then Your account, then Download an archive of your data. It arrives as a ZIP within a day or two. Drop that ZIP on this page, or pick the unzipped folder, and it opens straight away. There is nothing to install and no account to make.</p>
+        </details>
+        <details>
+          <summary>Is my archive uploaded anywhere?</summary>
+          <p>No. almanak is a static page with no backend, so there is nowhere to send it. Your browser reads the export from your own disk and everything happens in the tab. The source is public if you would rather check than take our word for it.</p>
+        </details>
+        <details>
+          <summary>Can it read my direct messages?</summary>
+          <p>It never opens them. A single allowlist decides every file the app is allowed to touch, direct-message files are refused outright, and a test suite keeps that true as the code changes.</p>
+        </details>
+        <details>
+          <summary>Which browsers work?</summary>
+          <p>Chrome and Edge can open a folder directly, which is the smoothest route for a large archive. Firefox and Safari have not shipped the File System Access API yet, so they fall back to dropping the ZIP, which works everywhere.</p>
+        </details>
+        <details>
+          <summary>How large an archive can it handle?</summary>
+          <p>It parses 200,000 tweets in about two and a half seconds and answers searches in well under a tenth of a second at that size. Media is read one file at a time rather than loaded up front, so a media folder of tens of gigabytes is fine.</p>
+        </details>
+        <details>
+          <summary>Does it work with Turkish?</summary>
+          <p>Yes, and deliberately so. Search folds the dotted and dotless i together and peels stacked suffixes, so searching model finds modelleri and searching isik finds IŞIK. General Unicode case folding gets Turkish I and İ wrong in opposite directions, which quietly breaks search in most tools.</p>
+        </details>
+        <details>
+          <summary>What does it cost?</summary>
+          <p>Nothing. It is free and MIT licensed, and you can run your own copy from the source.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer>
   <div class="wrap">
