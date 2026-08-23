@@ -30,7 +30,9 @@ your archive to go.
   read there.
 - **Direct messages are never read.** One allowlist decides every path the app
   opens, and a test suite keeps it that way.
-- **No analytics, no tracking, no cookies.**
+- **The app makes no requests at all.** The landing page counts visits with a
+  self-hosted counter; the app loads nothing and talks to nobody, and a
+  stricter CSP on `/app/*` holds it to that.
 - **The build fails on a stray request.** `scripts/check-network.ts` rejects
   any `fetch` or hard-coded remote host outside two allowlisted modules, and
   the deployed headers carry a CSP that makes the browser enforce it.

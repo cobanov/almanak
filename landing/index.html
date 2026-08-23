@@ -4,14 +4,52 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>almanak: your X archive, finally easy to explore</title>
-<meta name="description" content="Search, browse and understand an X (Twitter) data export. Everything runs in your browser; nothing is uploaded. Open source.">
+<meta name="description" content="Open source, browser-only reader for your X (Twitter) archive. Search every tweet, browse every photo, rebuild threads, and drag through a timeline of your posting history. Nothing is uploaded.">
+<link rel="canonical" href="https://almanak.cobanov.dev/">
 <link rel="icon" type="image/svg+xml" href="./app/icon.svg">
 <meta name="theme-color" content="#000000">
+<meta name="robots" content="index, follow, max-image-preview:large">
 
+<meta property="og:site_name" content="almanak">
 <meta property="og:title" content="almanak: your X archive, finally easy to explore">
-<meta property="og:description" content="Open source and browser-only. Drag through years of your own posting; your archive never leaves your machine.">
+<meta property="og:description" content="Search every tweet, browse every photo, rebuild threads, drag through your whole posting history. Open source and browser-only, so nothing is uploaded.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://almanak.cobanov.dev/">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://almanak.cobanov.dev/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:alt" content="almanak: your X archive, finally easy to explore. A density ridgeline of six years of posting.">
+
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@mertcobanov">
+<meta name="twitter:creator" content="@mertcobanov">
+<meta name="twitter:title" content="almanak: your X archive, finally easy to explore">
+<meta name="twitter:description" content="Search every tweet, browse every photo, rebuild threads, drag through your whole posting history. Open source and browser-only.">
+<meta name="twitter:image" content="https://almanak.cobanov.dev/assets/og.png">
+<meta name="twitter:image:alt" content="almanak: your X archive, finally easy to explore">
+
+<!--
+  Structured data, so a search result can show what this is rather than only
+  what it is called.
+-->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "almanak",
+  "url": "https://almanak.cobanov.dev/",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any browser",
+  "description": "Open source, browser-only reader for an X (Twitter) data export. Timeline, gallery, search, threads and analysis, with nothing uploaded.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "author": { "@type": "Person", "name": "Mert Cobanov", "url": "https://github.com/cobanov" },
+  "codeRepository": "https://github.com/cobanov/almanak"
+}
+</script>
 
 <style>
 /*
@@ -443,7 +481,7 @@ footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
         </p>
         <ul class="privacy-list">
           <li>No uploads. The app has no backend, so there is nowhere to send your archive.</li>
-          <li>No analytics, no tracking, no cookies.</li>
+          <li>The app makes no requests at all. This landing page counts visits with a self-hosted counter; the app itself loads nothing and talks to nobody.</li>
           <li>Direct messages are never opened. The code refuses those files outright, and a test keeps it that way.</li>
           <li>The build fails if any code outside the demo loader can make a network request.</li>
           <li>"Delete everything" in Settings clears all locally stored data and reports what it cleared.</li>
@@ -472,6 +510,12 @@ footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
   </div>
 </footer>
 
+<!--
+  Visit counting for this page only, from a self-hosted instance. The app under
+  /app/ loads nothing of the sort: its promise is that it makes no requests at
+  all, and that stays literally true.
+-->
+<script src="https://oa-c.cobanov.run/oa.js" defer></script>
 <script src="./landing.js" defer></script>
 </body>
 </html>

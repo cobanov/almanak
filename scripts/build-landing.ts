@@ -59,11 +59,12 @@ copyFileSync(join(root, 'landing', 'sw.js'), join(dist, 'sw.js'))
 
 const assets = join(root, 'landing', 'assets')
 if (existsSync(assets)) {
-  cpSync(assets, join(dist, 'landing-assets'), { recursive: true })
+  cpSync(assets, join(dist, 'assets'), { recursive: true })
 }
 
-// Cloudflare Pages reads these from the output root.
-for (const f of ['_headers', '_redirects']) {
+// Cloudflare Pages reads _headers and _redirects from the output root; the
+// crawler files belong there too.
+for (const f of ['_headers', '_redirects', 'robots.txt', 'sitemap.xml']) {
   const from = join(root, 'landing', f)
   if (existsSync(from)) copyFileSync(from, join(dist, f))
 }

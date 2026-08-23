@@ -19,6 +19,18 @@ maintainer's profile. Please include the smallest archive fragment that
 reproduces the issue, redacted — `npm run inspect` produces a report that is
 safe to share by construction.
 
+## A note on the host's own analytics
+
+Cloudflare Pages injects a Web Analytics beacon into every page it serves,
+whether or not the project asks for it. The `/app/*` Content-Security-Policy
+sets `script-src 'self'`, which blocks it: measured on the deployed site, the
+request transfers zero bytes and the script never executes.
+
+That is a real control rather than a hope, but it is the second line. If you
+deploy this yourself, turn the beacon off at the zone as well — Cloudflare
+dashboard, the zone's Web Analytics, disable automatic setup — so nothing has
+to be blocked in the first place.
+
 ## What is deliberately not protected
 
 The app trusts the machine it runs on. It stores an opened archive's directory

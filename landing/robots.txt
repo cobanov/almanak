@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://almanak.cobanov.dev/sitemap.xml

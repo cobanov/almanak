@@ -28,6 +28,12 @@ const FORBIDDEN = [
 /** Remote hosts hard-coded anywhere are a failure regardless of the module. */
 const REMOTE_URL = /https?:\/\/(?!x\.com|twitter\.com|localhost|127\.0\.0\.1)[a-z0-9.-]+\.[a-z]{2,}/i
 
+/*
+  This scans src/ only, which is the app. The landing page loads a self-hosted
+  visit counter; the app does not, and that is the boundary this check defends.
+  If a request ever appears under src/, it is a real regression.
+*/
+
 /** Links out to x.com are content, not requests. */
 const LINK_ONLY = /^\s*(\/\/|\*|<a|href=)/
 
