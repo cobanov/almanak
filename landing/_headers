@@ -1,0 +1,25 @@
+# The app shell must not be cached: its asset filenames change every build.
+/app/index.html
+  Cache-Control: no-cache, must-revalidate
+
+/index.html
+  Cache-Control: no-cache, must-revalidate
+
+# Fingerprinted by the bundler — safe to cache hard.
+/app/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: SAMEORIGIN
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=(), payment=(), usb=()
+  # The app reads archives from disk and talks to nothing. connect-src 'self'
+  # is what lets the browser enforce that rather than take our word for it;
+  # blob: covers media object URLs and the module worker. Styles are inlined by
+  # the bundler, hence 'unsafe-inline' there and nowhere else.
+  Content-Security-Policy: default-src 'self'; script-src 'self'; worker-src 'self' blob:; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; font-src 'self'; connect-src 'self'; form-action 'none'; frame-ancestors 'self'; base-uri 'none'; object-src 'none'

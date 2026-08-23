@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 22.6+ runs the TypeScript in scripts/ without a loader.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Types
+        run: npx tsc --noEmit -p tsconfig.app.json
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Tests
+        run: npm test
+
+      # Builds the demo archive, type-checks, bundles, and runs the network
+      # check, which fails on any fetch/WebSocket outside the allowed module.
+      # That check is the project's central promise; CI is what keeps a
+      # contributor from removing it by accident.
+      - name: Build
+        run: npm run build

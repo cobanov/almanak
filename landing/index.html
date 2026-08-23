@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>almanak: your X archive, finally easy to explore</title>
+<meta name="description" content="Search, browse and understand an X (Twitter) data export. Everything runs in your browser; nothing is uploaded. Open source.">
+<link rel="icon" type="image/svg+xml" href="./app/icon.svg">
+<meta name="theme-color" content="#000000">
+
+<meta property="og:title" content="almanak: your X archive, finally easy to explore">
+<meta property="og:description" content="Open source and browser-only. Drag through years of your own posting; your archive never leaves your machine.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+/*
+  Ground glass — the same room as the app.
+
+  Film-base black, ground glass, and a tungsten amber that is spent in one
+  place: the lit frame. Everything else stays quiet. Type is IBM Plex, self
+  hosted, in the same two roles the app uses — Sans for reading, Mono for
+  every number.
+*/
+
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400;
+  font-display: swap; src: url('./fonts/ibm-plex-sans-latin-400-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+2000-206F,U+2122,U+2191,U+2193,U+2212,U+2215; }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400;
+  font-display: swap; src: url('./fonts/ibm-plex-sans-latin-ext-400-normal.woff2') format('woff2');
+  unicode-range: U+0100-024F,U+0259,U+1E00-1EFF,U+2020,U+20A0-20AB,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 500;
+  font-display: swap; src: url('./fonts/ibm-plex-sans-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 600;
+  font-display: swap; src: url('./fonts/ibm-plex-sans-latin-600-normal.woff2') format('woff2');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+2000-206F,U+2122; }
+@font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 600;
+  font-display: swap; src: url('./fonts/ibm-plex-sans-latin-ext-600-normal.woff2') format('woff2');
+  unicode-range: U+0100-024F,U+0259,U+1E00-1EFF,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400;
+  font-display: swap; src: url('./fonts/ibm-plex-mono-latin-400-normal.woff2') format('woff2'); }
+
+:root {
+  /* ---- colour: black, blue, white, the same palette the app uses ---- */
+  --base:#000000; --glass:#16181c; --lit:#1e2126;
+  --light:#e7e9ea; --dim:#71767b; --tungsten:#1d9bf0; --oxide:#f4212e; --edge:#2f3336;
+
+  --sans:'IBM Plex Sans',ui-sans-serif,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+
+  /*
+    ---- spacing: one base-8 scale, used for every margin, padding and gap ----
+    Eight divides cleanly at every common pixel ratio, so nothing needs a
+    half-step exception. Values below are the raw scale; everything in the page
+    reaches for a semantic token instead, so the rhythm can be retuned in one
+    place rather than at every call site.
+  */
+  --s-1:4px;  --s-2:8px;   --s-3:12px; --s-4:16px; --s-5:24px;
+  --s-6:32px; --s-7:48px;  --s-8:64px; --s-9:96px; --s-10:128px;
+
+  /* Component-internal spacing. Deliberately a different vocabulary from
+     layout spacing: a button's padding and a section's gap are not the same
+     kind of measurement and should not share a name. */
+  --pad-inline:var(--s-4);
+  --pad-block:var(--s-2);
+  --gap-inline:var(--s-3);
+  --gap-stack:var(--s-2);
+
+  /* Layout spacing. */
+  --gap-column:var(--s-8);
+  --gap-section:var(--s-9);
+  --gap-block:var(--s-6);
+  --page-gutter:var(--s-6);
+
+  /*
+    ---- type: a 1.25 modular scale, named by role rather than size ----
+    Naming a style "display" rather than "36px" means the scale can be retuned
+    without every usage becoming a lie.
+  */
+  --t-caption:0.75rem;   /* 12 */
+  --t-small:0.8125rem;   /* 13 */
+  --t-label:0.875rem;    /* 14 */
+  --t-body:1rem;         /* 16 */
+  --t-body-lg:1.0625rem; /* 17 */
+  --t-lead:clamp(1rem, 1.4vw, 1.125rem);
+  --t-title:clamp(1.5rem, 2.6vw, 1.875rem);
+  --t-display:clamp(2rem, 4.4vw, 3rem);
+
+  /* Line height rides with the role: display tight, body loose. */
+  --lh-display:1.08;
+  --lh-title:1.15;
+  --lh-lead:1.55;
+  --lh-body:1.65;
+
+  --track-display:-0.035em;
+  --track-title:-0.022em;
+  --track-body:0;
+
+  --measure:62ch;
+  --radius:3px;
+  color-scheme: dark;
+}
+
+/*
+  ---- breakpoints ----
+  Named for how much room there is, not for a device: phones and tablets keep
+  changing size, "narrow" does not.
+    narrow  < 640
+    mid     640 – 1023
+    wide    >= 1024
+  CSS has no custom-media support here, so the widths appear inline; these are
+  the only three values used anywhere in the file.
+*/
+
+*,*::before,*::after { box-sizing:border-box; }
+html { scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+body {
+  margin:0; background:var(--base); color:var(--light);
+  font-family:var(--sans); font-size:var(--t-body-lg); line-height:var(--lh-body);
+  -webkit-font-smoothing:antialiased;
+}
+@media (max-width:639px){ body{ font-size:var(--t-body) } }
+@media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} *{animation:none!important;transition:none!important} }
+
+.tnum { font-family:var(--mono); font-variant-numeric:tabular-nums; }
+a { color:var(--tungsten); text-decoration:none; }
+a:hover { text-decoration:underline; text-underline-offset:3px; }
+:focus-visible { outline:2px solid var(--tungsten); outline-offset:3px; border-radius:2px; }
+
+.wrap { width:min(1180px, 100% - (var(--page-gutter) * 2)); margin-inline:auto; }
+@media (max-width:639px){ :root{ --page-gutter:var(--s-4) } }
+
+/* ---------- masthead ---------- */
+.masthead {
+  position:sticky; top:0; z-index:50; backdrop-filter:blur(8px);
+  background:color-mix(in srgb, var(--base) 88%, transparent);
+  border-bottom:1px solid var(--edge);
+}
+.masthead .wrap { display:flex; align-items:center; gap:var(--s-5); height:56px; }
+.brand { font-weight:600; letter-spacing:var(--track-title); font-size:var(--t-body-lg); color:var(--light); }
+.brand:hover { text-decoration:none; }
+.masthead nav { margin-left:auto; display:flex; gap:var(--s-5); font-size:var(--t-label); }
+.masthead nav a { color:var(--dim); }
+.masthead nav a:hover { color:var(--light); text-decoration:none; }
+@media (max-width:639px){ .masthead nav a.opt { display:none } }
+
+/* ---------- hero ---------- */
+.hero { padding-top:var(--s-7); }
+@media (max-width:639px){ .hero{ padding-top:var(--s-5) } }
+
+/*
+  Twelve columns at wide, so the actions sit at a real gridline rather than
+  jammed against the right edge. Text takes seven, a column of air sits
+  between, actions take the last three and align to the top of the headline.
+*/
+.hero-row { display:grid; gap:var(--s-5) var(--gap-column); align-items:start; }
+@media (min-width:1024px){
+  .hero-row { grid-template-columns:repeat(12, minmax(0,1fr)); align-items:center; }
+  .hero-text { grid-column:1 / span 7; }
+  .hero-actions { grid-column:9 / span 4; justify-self:start; }
+}
+.hero-actions { display:flex; flex-direction:column; gap:var(--s-3); align-items:stretch; }
+.actions-row { display:flex; gap:var(--gap-inline); flex-wrap:wrap; }
+
+/* The drop target. Sized to the buttons above it so the pair reads as one
+   block: two ways to start, the second one being the shortest. */
+.drop {
+  display:flex; align-items:center; gap:var(--s-3);
+  width:100%; text-align:left; cursor:pointer; font:inherit; color:inherit;
+  padding:var(--s-3) var(--s-4);
+  border:1px dashed var(--edge); border-radius:var(--radius);
+  background:transparent; transition:border-color .15s, background .15s, color .15s;
+}
+.drop:hover { border-color:var(--dim); background:var(--glass); }
+.drop.over { border-color:var(--tungsten); border-style:solid; background:color-mix(in srgb, var(--tungsten) 8%, transparent); }
+.drop.busy { border-style:solid; border-color:var(--tungsten); }
+.drop-icon { flex:none; color:var(--dim); display:grid; place-items:center; }
+.drop.over .drop-icon, .drop.busy .drop-icon { color:var(--tungsten); }
+.drop-text { display:flex; flex-direction:column; gap:2px; min-width:0; }
+.drop-text strong { font-size:var(--t-label); font-weight:500; }
+.drop-text small { font-size:var(--t-caption); color:var(--dim); }
+.drop.error { border-color:var(--oxide); }
+.drop.error .drop-text strong { color:var(--oxide); }
+
+.visually-hidden {
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+
+.hero h1 {
+  font-size:var(--t-display); line-height:var(--lh-display);
+  letter-spacing:var(--track-display); font-weight:600;
+  margin:0 0 var(--s-4); max-width:16ch;
+}
+.hero .lede {
+  font-size:var(--t-lead); line-height:var(--lh-lead);
+  color:var(--dim); max-width:56ch; margin:0;
+}
+.hero .lede strong { color:var(--light); font-weight:500; }
+.hero .oss {
+  margin:var(--s-4) 0 0; font-size:var(--t-small); color:var(--dim);
+}
+
+.btn {
+  display:inline-flex; align-items:center; gap:var(--gap-stack);
+  padding:var(--pad-block) var(--pad-inline); min-height:40px;
+  border-radius:var(--radius); font-size:var(--t-label); font-weight:500;
+  border:1px solid var(--edge); color:var(--light);
+  transition:border-color .15s, background .15s, color .15s;
+}
+.btn:hover { text-decoration:none; border-color:var(--dim); background:var(--glass); }
+.mark { flex:none; opacity:.85; }
+.masthead nav a { display:inline-flex; align-items:center; gap:var(--s-1); }
+.btn-primary { background:var(--tungsten); color:#fff; border-color:var(--tungsten); }
+.btn-primary:hover { background:#3aabf5; border-color:#3aabf5; color:#fff; }
+
+/* ---------- the demo frame ---------- */
+.gate { padding-bottom:var(--s-8); }
+
+/*
+  A rule and a full section's worth of air between the hero and the demo.
+  Without it the heading read as a third paragraph of the hero rather than as
+  the label on the thing below it.
+*/
+.gate-head {
+  text-align:center;
+  border-top:1px solid var(--edge);
+  padding-top:var(--s-7);
+  margin-top:var(--s-7);
+  margin-bottom:var(--s-5);
+}
+.gate-head h2 {
+  margin:0 auto var(--s-2); max-width:none;
+  font-size:var(--t-title); line-height:var(--lh-title);
+  letter-spacing:var(--track-title);
+}
+.gate-head p { margin:0 auto; max-width:48ch; color:var(--dim); font-size:var(--t-label); }
+@media (max-width:639px){
+  .gate-head { padding-top:var(--s-6); margin-top:var(--s-6); }
+}
+.gate-shell {
+  border:1px solid var(--edge); border-radius:5px; overflow:hidden;
+  background:var(--glass);
+  box-shadow:0 0 0 1px rgba(29,155,240,.10), 0 24px 70px -30px rgba(0,0,0,.95);
+}
+.gate-bar {
+  display:flex; align-items:center; gap:var(--gap-stack);
+  padding:var(--s-2) var(--s-3); border-bottom:1px solid var(--edge);
+  background:var(--lit); font-size:var(--t-caption); color:var(--dim);
+}
+.dot { width:9px; height:9px; border-radius:50%; background:var(--edge); flex:none; }
+.gate-bar .label { margin-left:var(--s-1); }
+.gate-bar .live { margin-left:auto; display:inline-flex; align-items:center; gap:var(--s-1); }
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--tungsten); }
+.gate-frame { position:relative; height:min(72vh, 620px); background:var(--base); }
+.gate-frame iframe { width:100%; height:100%; border:0; display:block; }
+@media (max-width:639px){ .gate-frame{ height:480px } }
+
+/* Until the reader asks for it, the demo is a picture: scrolling past it
+   scrolls the page rather than the app inside it. One click hands over. */
+.gate-veil {
+  position:absolute; inset:0; display:grid; place-items:center;
+  background:linear-gradient(to bottom, transparent 40%, color-mix(in srgb, var(--base) 55%, transparent));
+  cursor:pointer; border:0; width:100%; font:inherit; color:inherit;
+  transition:background .18s;
+}
+.gate-veil:hover { background:color-mix(in srgb, var(--base) 30%, transparent); }
+.gate-veil span {
+  background:var(--tungsten); color:#fff; font-size:var(--t-label); font-weight:500;
+  padding:var(--pad-block) var(--pad-inline); border-radius:var(--radius);
+  box-shadow:0 8px 24px -8px rgba(0,0,0,.8);
+}
+.gate-frame.live .gate-veil { display:none; }
+.gate-note {
+  margin-top:var(--s-3); font-size:var(--t-small); color:var(--dim);
+  max-width:52ch; margin-inline:auto; text-align:center;
+}
+
+/* ---------- sections ---------- */
+section { padding:var(--s-8) 0; border-top:1px solid var(--edge); }
+@media (max-width:639px){ section{ padding:var(--s-7) 0 } }
+/* The last section closes the page now, so it does not need a full gap under it. */
+section:last-of-type { padding-bottom:var(--s-7); }
+
+h2 {
+  font-size:var(--t-title); line-height:var(--lh-title);
+  letter-spacing:var(--track-title); font-weight:600;
+  margin:0 0 var(--s-3); max-width:20ch;
+}
+.sub { color:var(--dim); max-width:var(--measure); margin:0 0 var(--s-6); font-size:var(--t-body); }
+p { max-width:var(--measure); }
+
+/*
+  The closing two blocks read side by side above 1024. Stacking them was
+  adding a screen of scrolling to say two short things.
+*/
+.pair { display:grid; gap:var(--gap-section) var(--gap-column); }
+@media (min-width:1024px){
+  .pair { grid-template-columns:repeat(12, minmax(0,1fr)); gap:var(--gap-column); }
+  .pair > * { grid-column:span 6; }
+}
+
+/* ---------- steps ---------- */
+ol.steps { counter-reset:s; list-style:none; padding:0; margin:0; max-width:var(--measure); }
+ol.steps li { counter-increment:s; position:relative; padding:0 0 var(--s-5) var(--s-7); }
+ol.steps li:last-child { padding-bottom:0; }
+ol.steps li::before {
+  content:counter(s); position:absolute; left:0; top:1px;
+  font-family:var(--mono); font-size:var(--t-caption); color:var(--tungsten);
+  border:1px solid var(--edge); border-radius:50%; width:28px; height:28px;
+  display:grid; place-items:center;
+}
+ol.steps li strong { font-weight:600; }
+ol.steps li p { color:var(--dim); font-size:var(--t-label); margin:var(--s-1) 0 0; }
+
+/* ---------- privacy ---------- */
+.privacy-list { list-style:none; padding:0; margin:0; max-width:var(--measure); }
+.privacy-list li {
+  position:relative; padding:var(--s-3) 0 var(--s-3) var(--s-5);
+  color:var(--dim); font-size:var(--t-label); line-height:1.55;
+  border-bottom:1px solid var(--edge);
+}
+.privacy-list li:first-child { border-top:1px solid var(--edge); }
+.privacy-list li::before {
+  content:''; position:absolute; left:var(--s-1); top:1.35em;
+  width:6px; height:6px; border-radius:1px; background:var(--tungsten);
+}
+.privacy-note { color:var(--dim); font-size:var(--t-small); margin-top:var(--s-5); }
+
+.cta { display:flex; gap:var(--gap-inline); flex-wrap:wrap; }
+
+/* ---------- footer ---------- */
+footer { border-top:1px solid var(--edge); padding:var(--s-6) 0 var(--s-8); color:var(--dim); font-size:var(--t-small); }
+footer .wrap { display:flex; gap:var(--s-4) var(--s-5); flex-wrap:wrap; align-items:center; }
+footer .sp { margin-left:auto; display:inline-flex; align-items:center; gap:var(--s-3); }
+footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="./">almanak</a>
+    <nav>
+      <a class="opt" href="https://github.com/cobanov/almanak"><svg class="mark" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>GitHub</a>
+      <a href="./app/">Open the app</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div class="hero-row">
+      <div class="hero-text">
+        <h1>Your X archive, finally easy to explore.</h1>
+        <p class="lede">
+          X hands it over as a folder of files nobody can read. almanak turns that
+          into a timeline you drag through, a gallery of every photo, and search
+          that answers as you type. <strong>It runs in your browser and uploads
+          nothing.</strong>
+        </p>
+        <p class="oss"><span><a href="https://github.com/cobanov/almanak">Free and open source</a>, MIT licensed. Read the code that handles your data.</span></p>
+      </div>
+      <div class="hero-actions">
+        <div class="actions-row">
+        <a class="btn btn-primary" href="./app/"><svg class="mark" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.75v7.5"/><path d="m5 6.5 3 3 3-3"/><path d="M2.25 10.5v2.25c0 .55.45 1 1 1h9.5c.55 0 1-.45 1-1V10.5"/></svg>Open your archive</a>
+        <a class="btn" href="https://github.com/cobanov/almanak"><svg class="mark" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>GitHub</a>
+        </div>
+
+        <!-- Drop straight here: the file is parked in IndexedDB and the app
+             picks it up on the other side of the navigation. -->
+        <button type="button" class="drop" id="drop" aria-label="Drop your archive here to open it">
+          <span class="drop-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 3v10"/><path d="m8 9 4 4 4-4"/>
+              <path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/>
+            </svg>
+          </span>
+          <span class="drop-text">
+            <strong>Drop your archive here</strong>
+            <small>the ZIP from X, or the unzipped folder</small>
+          </span>
+        </button>
+        <input type="file" id="dropFile" accept=".zip" class="visually-hidden" tabindex="-1">
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap gate">
+    <div class="gate-head">
+      <h2>Try the demo right here</h2>
+      <p>An invented archive, in the real app. Click it, then drag the track.</p>
+    </div>
+    <div class="gate-shell">
+      <div class="gate-bar">
+        <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+        <span class="label">almanak demo</span>
+        <span class="live"><span class="live-dot"></span> running here, in this page</span>
+      </div>
+      <div class="gate-frame">
+        <!-- The real application, not a recording. Same origin, so the demo
+             archive loads exactly the way your own would. -->
+        <iframe
+          src="./app/?demo=1&embed=1#/timeline"
+          title="almanak, running a demo archive"
+          loading="lazy"
+          referrerpolicy="no-referrer"></iframe>
+        <button class="gate-veil" type="button" aria-label="Start the demo">
+          <span>Click to try it</span>
+        </button>
+      </div>
+    </div>
+    <p class="gate-note">
+      Open Gallery and Analysis too. None of the posts are real, and nothing you
+      do here is saved.
+    </p>
+  </div>
+
+  <section id="start">
+    <div class="wrap pair">
+      <div>
+        <h2>You need your archive first.</h2>
+        <ol class="steps">
+          <li>
+            <strong>Ask X for it.</strong>
+            <p>Settings, then Your account, then Download an archive of your data.
+               It takes a day or two to arrive, so start now.</p>
+          </li>
+          <li>
+            <strong>Drop the ZIP in.</strong>
+            <p>Or pick the unzipped folder. The page reads it from your disk and
+               remembers the folder, so you only pick it once.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div id="privacy">
+        <h2>Your data stays yours.</h2>
+        <p class="sub">
+          almanak is a static page. It reads your export from your disk, inside
+          your browser, and sends nothing anywhere. No account, no server.
+        </p>
+        <ul class="privacy-list">
+          <li>No uploads. The app has no backend, so there is nowhere to send your archive.</li>
+          <li>No analytics, no tracking, no cookies.</li>
+          <li>Direct messages are never opened. The code refuses those files outright, and a test keeps it that way.</li>
+          <li>The build fails if any code outside the demo loader can make a network request.</li>
+          <li>"Delete everything" in Settings clears all locally stored data and reports what it cleared.</li>
+        </ul>
+        <p class="privacy-note">
+          You do not have to take this on trust. The
+          <a href="https://github.com/cobanov/almanak">source is public</a> and MIT licensed.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</main></main>
+
+<footer>
+  <div class="wrap">
+    <span>almanak, MIT licensed.</span>
+    <a href="#privacy">Privacy</a>
+    <a href="https://github.com/cobanov/almanak">Source</a>
+    <a href="https://github.com/cobanov/almanak/blob/main/docs/ARCHIVE-FORMAT.md">Archive format notes</a>
+    <span class="sp">
+      Mert Cobanov
+      <a href="https://x.com/mertcobanov" aria-label="Mert Cobanov on X">@mertcobanov</a>
+      <a href="https://github.com/cobanov" aria-label="Mert Cobanov on GitHub"><svg class="mark" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>cobanov</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+  // Hand interaction to the embedded app only once it is asked for, so the
+  // page stays scrollable past it.
+  var frame = document.querySelector('.gate-frame')
+  var veil = document.querySelector('.gate-veil')
+  if (frame && veil) {
+    veil.addEventListener('click', function () {
+      frame.classList.add('live')
+      var f = frame.querySelector('iframe')
+      if (f) f.focus()
+    })
+  }
+
+  /*
+    Dropping an archive here starts it immediately.
+
+    A File cannot travel in a URL, so it is parked in IndexedDB and collected by
+    the app on the other side of the navigation. Both pages are the same origin,
+    so they share the database. Nothing is uploaded: this is the browser handing
+    a file to itself.
+  */
+  (function () {
+    var drop = document.getElementById('drop')
+    var picker = document.getElementById('dropFile')
+    if (!drop) return
+
+    var label = drop.querySelector('.drop-text strong')
+    var hint = drop.querySelector('.drop-text small')
+    var defaultLabel = label.textContent
+    var defaultHint = hint.textContent
+
+    function say(text, detail, state) {
+      label.textContent = text
+      hint.textContent = detail
+      drop.classList.remove('over', 'error', 'busy')
+      if (state) drop.classList.add(state)
+    }
+
+    function reset() {
+      setTimeout(function () { say(defaultLabel, defaultHint) }, 3200)
+    }
+
+    function park(value) {
+      return new Promise(function (resolve, reject) {
+        var open = indexedDB.open('almanak-handoff', 1)
+        open.onupgradeneeded = function () {
+          if (!open.result.objectStoreNames.contains('pending')) {
+            open.result.createObjectStore('pending')
+          }
+        }
+        open.onerror = function () { reject(open.error) }
+        open.onsuccess = function () {
+          var db = open.result
+          var tx = db.transaction('pending', 'readwrite')
+          tx.objectStore('pending').put(value, 'archive')
+          tx.oncomplete = function () { db.close(); resolve() }
+          tx.onerror = function () { db.close(); reject(tx.error) }
+        }
+      })
+    }
+
+    function start(value, name) {
+      say('Opening ' + name, 'reading it in your browser', 'busy')
+      park(value).then(function () {
+        location.href = './app/?handoff=1'
+      }).catch(function () {
+        // Storage blocked, private window, or quota. The app can still take a
+        // drop directly, so send them there rather than dead-ending.
+        say('Could not hand it over', 'opening the app so you can drop it there', 'error')
+        setTimeout(function () { location.href = './app/' }, 1200)
+      })
+    }
+
+    drop.addEventListener('click', function () {
+      if (window.showDirectoryPicker) {
+        window.showDirectoryPicker({ mode: 'read' }).then(function (handle) {
+          start({ kind: 'directory', handle: handle, label: handle.name }, handle.name)
+        }).catch(function () { /* the picker was dismissed */ })
+      } else {
+        picker.click()
+      }
+    })
+
+    picker.addEventListener('change', function () {
+      var file = picker.files && picker.files[0]
+      if (file) start({ kind: 'zip', file: file }, file.name)
+    })
+
+    ;['dragenter', 'dragover'].forEach(function (type) {
+      drop.addEventListener(type, function (e) {
+        e.preventDefault()
+        drop.classList.add('over')
+      })
+    })
+    ;['dragleave', 'dragend'].forEach(function (type) {
+      drop.addEventListener(type, function () { drop.classList.remove('over') })
+    })
+
+    drop.addEventListener('drop', function (e) {
+      e.preventDefault()
+      drop.classList.remove('over')
+
+      var items = e.dataTransfer && e.dataTransfer.items
+      // A dropped folder arrives as a handle; a dropped export as a ZIP file.
+      if (items && items.length && items[0].getAsFileSystemHandle) {
+        items[0].getAsFileSystemHandle().then(function (handle) {
+          if (handle && handle.kind === 'directory') {
+            start({ kind: 'directory', handle: handle, label: handle.name }, handle.name)
+            return
+          }
+          takeFile(e)
+        }).catch(function () { takeFile(e) })
+        return
+      }
+      takeFile(e)
+    })
+
+    function takeFile(e) {
+      var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]
+      if (!file) {
+        say('That did not carry a file', 'drop the ZIP, or the unzipped folder', 'error')
+        reset()
+        return
+      }
+      if (!/\.zip$/i.test(file.name)) {
+        say('That is not an X export', 'drop the ZIP from X, or its unzipped folder', 'error')
+        reset()
+        return
+      }
+      start({ kind: 'zip', file: file }, file.name)
+    }
+
+    // A file dropped anywhere else would otherwise be opened by the browser,
+    // which looks like the page crashed.
+    ;['dragover', 'drop'].forEach(function (type) {
+      window.addEventListener(type, function (e) {
+        if (!drop.contains(e.target)) e.preventDefault()
+      })
+    })
+  })()
+</script>
+</body>
+</html>

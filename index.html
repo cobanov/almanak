@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <title>almanak</title>
+    <meta name="description" content="Search, browse and analyse an X data export. Everything runs in your browser; nothing is uploaded." />
+    <script>
+      // Apply the stored theme before first paint so there is no flash.
+      try {
+        var t = localStorage.getItem('theme')
+        if (t === 'dark' || t === 'light') document.documentElement.setAttribute('data-theme', t)
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        addEventListener('load', function () {
+          navigator.serviceWorker.register('./sw.js').catch(function () {
+            // Offline support is a bonus; the app works without it.
+          })
+        })
+      }
+    </script>
+  </body>
+</html>

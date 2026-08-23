@@ -1,0 +1,181 @@
+@import 'tailwindcss';
+
+@import '@fontsource/ibm-plex-sans/400.css';
+@import '@fontsource/ibm-plex-sans/500.css';
+@import '@fontsource/ibm-plex-sans/600.css';
+@import '@fontsource/ibm-plex-mono/400.css';
+@import '@fontsource/ibm-plex-mono/500.css';
+
+/*
+  Ground glass — a records room where the archive is film.
+
+  Dark is the reader with the lamp on: film-base black, ground glass, and a
+  tungsten amber reserved for the frame currently in the gate.
+
+  Light is not this inverted. It is the lamp off and the film on a light
+  table: a diffuse ground with the frames sitting dark on it. Both are
+  designed; neither is derived from the other.
+*/
+
+@theme {
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  /*
+    Black, blue, white.
+
+    The palette is X's own family, at Cobanov's request. It is deliberately
+    restrained within that: one blue, spent on the current position and on
+    anything you can act on, and nothing else competing for attention. The
+    layout, the typography and the instrument metaphor are unchanged — only
+    the colour is.
+  */
+  --color-ink: #000000;          /* the ground */
+  --color-slate: #16181c;        /* raised surfaces */
+  --color-slate-lit: #1e2126;    /* surfaces above those */
+  --color-chalk: #e7e9ea;        /* primary text */
+  --color-ash: #71767b;          /* secondary text */
+  --color-blue: #1d9bf0;         /* the accent. Position and action only. */
+  --color-crimson: #f4212e;      /* deletions, destructive actions */
+  --color-rule: #2f3336;         /* hairlines */
+}
+
+:root {
+  --bg: var(--color-ink);
+  --surface: var(--color-slate);
+  --surface-lit: var(--color-slate-lit);
+  --text: var(--color-chalk);
+  --text-dim: var(--color-ash);
+  --accent: var(--color-blue);
+  --danger: var(--color-crimson);
+  --edge: var(--color-rule);
+  --gate-glow: 29 155 240;
+
+  color-scheme: dark;
+}
+
+/*
+  Light is not the dark palette inverted. Black-on-white wants a warmer,
+  slightly softer ground than pure white and a blue a shade deeper, or the
+  accent vibrates against the page.
+*/
+:root[data-theme='light'] {
+  --bg: #ffffff;
+  --surface: #f7f9f9;
+  --surface-lit: #ffffff;
+  --text: #0f1419;
+  --text-dim: #536471;
+  --accent: #1a8cd8;
+  --danger: #f4212e;
+  --edge: #eff3f4;
+  --gate-glow: 26 140 216;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme='dark']) {
+    --bg: #ffffff;
+    --surface: #f7f9f9;
+    --surface-lit: #ffffff;
+    --text: #0f1419;
+    --text-dim: #536471;
+    --accent: #1a8cd8;
+    --danger: #f4212e;
+    --edge: #eff3f4;
+    --gate-glow: 26 140 216;
+    color-scheme: light;
+  }
+}
+
+* { border-color: var(--edge); }
+
+html, body, #root { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;         /* panes scroll, the page does not */
+}
+
+/* Every number in this app is tabular. Counts must align in a column, and a
+   figure must not change width as it counts up. */
+.tnum, time, [data-numeric] {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+/* The display role. Redaction was the intended face and could not be
+   verified for Turkish coverage, so the degradation device moved to
+   letterspacing and weight — the fallback named in DESIGN.md. */
+.display {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Inferred content — generated era labels, detected changepoints — is set
+   looser and dimmer than confirmed fact, so the design says "this is a
+   guess" without a badge. */
+.inferred {
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  font-weight: 400;
+  text-transform: lowercase;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection { background: rgb(var(--gate-glow) / 0.3); }
+
+/* Scrollbars, quietly */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--edge);
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+/* Motion lives in the scrubber. Everything else changes state without
+   animating, and reduced-motion removes inertia while keeping function. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@keyframes gate-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/*
+  No fill mode. With `both`, the element holds the animation's opening frame
+  (opacity 0) until the animation actually runs — and a backgrounded tab does
+  not run animations, so the whole panel sat invisible until the tab was
+  focused again. Content must never depend on an animation completing to
+  become visible; the animation is an addition to a state that is already
+  correct without it.
+*/
+.gate-in { animation: gate-in 180ms ease-out; }
+
+/* Reveal target: the inspector links to a tweet, and the eye needs to find it
+   after the scroll lands. */
+@keyframes flash-in {
+  0%   { background: rgb(var(--gate-glow) / 0.22); }
+  100% { background: transparent; }
+}
+.flash { animation: flash-in 1.2s ease-out; }

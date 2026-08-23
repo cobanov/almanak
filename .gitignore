@@ -1,0 +1,51 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# --- Archive safety -------------------------------------------------
+# No real X/Twitter export data ever enters this repo. The inspector
+# takes an archive path as an argument; nothing is copied in.
+# Only redacted fixtures under fixtures/ are tracked.
+data/
+tweets_media/
+direct_messages*/
+*.js.archive
+**/direct-message*
+**/tweets.js
+**/tweet-headers.js
+**/deleted-tweet*.js
+**/manifest.js
+Your archive.html
+
+# Inspector output for a real archive (never committed)
+/reports/
+
+# Generated from fixtures/ at build time by scripts/build-demo.ts
+/public/demo/
+
+# Generated demo archive, built from fixtures by scripts/make-demo-archive.ts
+/fixtures/demo/
+
+# Local publishing target and test output
+/coverage/
