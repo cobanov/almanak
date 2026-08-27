@@ -426,6 +426,50 @@ ol.steps li p { color:var(--dim); font-size:var(--t-label); margin:var(--s-1) 0 
 
 .cta { display:flex; gap:var(--gap-inline); flex-wrap:wrap; }
 
+/* ---------- the rest of the shelf ---------- */
+/*
+  A band above the masthead for the other things on this domain. Not fixed:
+  it slides in once and then scrolls away like any other part of the page.
+  Animating the grid row rather than sliding a fixed bar over the top means
+  the masthead is pushed down, never covered.
+*/
+.promo-bar { border-bottom:1px solid var(--edge); background:var(--glass); overflow:hidden; }
+@media (prefers-reduced-motion: no-preference) {
+  .promo-bar { display:grid; grid-template-rows:0fr; opacity:0;
+    transition:grid-template-rows .5s ease, opacity .4s ease; }
+  .promo-bar.is-open { grid-template-rows:1fr; opacity:1; }
+  /* A grid row only collapses if its content can, so the wrapper needs this. */
+  .promo-bar > * { min-height:0; }
+}
+.promo-bar .wrap {
+  display:flex; flex-wrap:wrap; align-items:center;
+  gap:var(--s-2) var(--s-4); padding-block:var(--s-3); height:auto;
+}
+/* The mark sits on film black rather than glass, so the other site's own
+   colour reads as its colour and not as a hole in this bar. */
+.promo-mark {
+  display:grid; place-items:center; width:32px; height:32px; flex:none;
+  border:1px solid var(--edge); border-radius:var(--radius); background:var(--base);
+}
+.promo-say { flex:1 1 22ch; margin:0; color:var(--dim); font-size:var(--t-label); line-height:1.45; }
+.promo-acts { display:flex; flex-wrap:wrap; gap:var(--gap-stack); margin-left:auto; }
+/* A full-height button is right where a button is the point of the screen. In
+   a band above the header it is a slab, so this bar gets a shorter one. */
+.promo-acts .btn { padding:6px var(--s-3); }
+.promo-x {
+  display:grid; place-items:center; width:32px; height:32px; flex:none;
+  border:0; border-radius:var(--radius); background:transparent; color:var(--dim);
+  cursor:pointer; transition:color .18s, background .18s;
+}
+.promo-x:hover { background:var(--lit); color:var(--light); }
+/* Narrow: the sentence takes its own line and the buttons sit under it,
+   rather than every element fighting for a two-word column. */
+@media (max-width:639px){
+  .promo-say { flex-basis:100%; order:2; }
+  .promo-acts { order:3; flex-basis:100%; margin-left:0; }
+  .promo-acts .btn { flex:1 1 auto; justify-content:center; }
+}
+
 /* ---------- footer ---------- */
 footer { border-top:1px solid var(--edge); padding:var(--s-6) 0 var(--s-8); color:var(--dim); font-size:var(--t-small); }
 footer .wrap { display:flex; gap:var(--s-4) var(--s-5); flex-wrap:wrap; align-items:center; }
@@ -499,6 +543,32 @@ footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
 
 </head>
 <body>
+
+<!--
+  Hidden until the script has checked whether it was closed before, so a
+  reader who dismissed it does not watch it flash past on every visit.
+-->
+<aside class="promo-bar" id="promo" hidden>
+  <div class="wrap">
+    <span class="promo-mark" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="#e56192" stroke-width="1.7">
+        <rect x="3" y="3" width="18" height="18" rx="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.4" cy="6.6" r="1.1" fill="#e56192" stroke="none"/>
+      </svg>
+    </span>
+    <p class="promo-say">There is one more here: find out who does not follow you back on Instagram, in your own browser.</p>
+    <span class="promo-acts">
+      <a class="btn btn-primary" href="https://instagram.cobanov.dev/?ref=almanak">Try it</a>
+      <a class="btn" href="https://cobanov.dev/?ref=almanak">All projects</a>
+    </span>
+    <button class="promo-x" type="button" id="promoClose" aria-label="Close">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18"/>
+      </svg>
+    </button>
+  </div>
+</aside>
 
 <header class="masthead">
   <div class="wrap">
@@ -663,6 +733,7 @@ footer .sp a { display:inline-flex; align-items:center; gap:var(--s-1); }
       </div>
     </div>
   </section>
+
 </main>
 
 <footer>

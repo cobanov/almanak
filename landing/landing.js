@@ -152,3 +152,54 @@
       })
     })
   })()
+
+/*
+  The bar above the masthead, for the other things on this domain.
+
+  It comes back a month after it is closed, so it can mention something new
+  without becoming furniture nobody sees.
+*/
+;(function () {
+  var QUIET_DAYS = 30
+  var bar = document.getElementById('promo')
+  var close = document.getElementById('promoClose')
+  if (!bar) return
+
+  function dismissed() {
+    try {
+      var at = Number(localStorage.getItem('almanak-promo-closed') || 0)
+      return at > 0 && Date.now() - at < QUIET_DAYS * 86400000
+    } catch (e) {
+      // Private window, or storage refused. Showing it is the safe answer.
+      return false
+    }
+  }
+
+  if (!dismissed()) {
+    bar.hidden = false
+    // Two frames, so the browser paints it closed before it opens. Setting
+    // the class in the same frame skips the transition entirely.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { bar.classList.add('is-open') })
+    })
+  }
+
+  if (close) {
+    close.addEventListener('click', function () {
+      bar.classList.remove('is-open')
+      // Waiting on transitionend would strand the bar on screen for a reader
+      // who asked for no motion: with the transition suppressed, the event
+      // never fires.
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        bar.hidden = true
+      } else {
+        setTimeout(function () { bar.hidden = true }, 550)
+      }
+      try {
+        localStorage.setItem('almanak-promo-closed', String(Date.now()))
+      } catch (e) {
+        // Closing it for this visit is still right; it simply returns later.
+      }
+    })
+  }
+})()
