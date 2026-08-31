@@ -40,18 +40,39 @@
 
     var label = drop.querySelector('.drop-text strong')
     var hint = drop.querySelector('.drop-text small')
-    var defaultLabel = label.textContent
-    var defaultHint = hint.textContent
 
-    function say(text, detail, state) {
-      label.textContent = text
-      hint.textContent = detail
+    /*
+      The page carries both languages at once, so anything the script writes
+      has to arrive as a pair as well. Writing one language as plain text would
+      strand the target in whatever language was showing when it was written,
+      and the toggle would stop reaching it.
+    */
+    function pair(el, en, tr) {
+      el.textContent = ''
+      var a = document.createElement('span')
+      a.lang = 'en'
+      a.textContent = en
+      var b = document.createElement('span')
+      b.lang = 'tr'
+      b.textContent = tr
+      el.appendChild(a)
+      el.appendChild(b)
+    }
+
+    function say(en, tr, enDetail, trDetail, state) {
+      pair(label, en, tr)
+      pair(hint, enDetail, trDetail)
       drop.classList.remove('over', 'error', 'busy')
       if (state) drop.classList.add(state)
     }
 
     function reset() {
-      setTimeout(function () { say(defaultLabel, defaultHint) }, 3200)
+      setTimeout(function () {
+        say(
+          'Drop your archive here', 'Arşivini buraya bırak',
+          'the ZIP from X, or the unzipped folder', "X'ten gelen ZIP ya da açılmış klasör"
+        )
+      }, 3200)
     }
 
     function park(value) {
@@ -74,13 +95,21 @@
     }
 
     function start(value, name) {
-      say('Opening ' + name, 'reading it in your browser', 'busy')
+      say(
+        'Opening ' + name, name + ' açılıyor',
+        'reading it in your browser', 'tarayıcının içinde okunuyor',
+        'busy'
+      )
       park(value).then(function () {
         location.href = './app/?handoff=1'
       }).catch(function () {
         // Storage blocked, private window, or quota. The app can still take a
         // drop directly, so send them there rather than dead-ending.
-        say('Could not hand it over', 'opening the app so you can drop it there', 'error')
+        say(
+          'Could not hand it over', 'Devredilemedi',
+          'opening the app so you can drop it there', 'uygulama açılıyor, oraya bırakabilirsin',
+          'error'
+        )
         setTimeout(function () { location.href = './app/' }, 1200)
       })
     }
@@ -132,12 +161,20 @@
     function takeFile(e) {
       var file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]
       if (!file) {
-        say('That did not carry a file', 'drop the ZIP, or the unzipped folder', 'error')
+        say(
+          'That did not carry a file', 'Bunun içinde dosya yoktu',
+          'drop the ZIP, or the unzipped folder', 'ZIP dosyasını ya da açılmış klasörü bırak',
+          'error'
+        )
         reset()
         return
       }
       if (!/\.zip$/i.test(file.name)) {
-        say('That is not an X export', 'drop the ZIP from X, or its unzipped folder', 'error')
+        say(
+          'That is not an X export', 'Bu bir X arşivi değil',
+          'drop the ZIP from X, or its unzipped folder', "X'ten gelen ZIP'i ya da açılmış halini bırak",
+          'error'
+        )
         reset()
         return
       }
@@ -202,4 +239,39 @@
       }
     })
   }
+})()
+
+/*
+  The language button.
+
+  It wears the code of the language it would switch to, so it reads as a
+  destination rather than as a status light. The choice sticks in
+  localStorage, where lang-boot.js picks it up on the next visit before
+  anything is painted.
+*/
+;(function () {
+  var toggle = document.getElementById('langToggle')
+  if (!toggle) return
+
+  function current() {
+    return document.documentElement.getAttribute('data-lang') === 'tr' ? 'tr' : 'en'
+  }
+
+  function refresh() {
+    toggle.textContent = current() === 'tr' ? 'EN' : 'TR'
+  }
+
+  refresh()
+
+  toggle.addEventListener('click', function () {
+    var next = current() === 'tr' ? 'en' : 'tr'
+    document.documentElement.setAttribute('data-lang', next)
+    document.documentElement.lang = next
+    try {
+      localStorage.setItem('lang', next)
+    } catch (e) {
+      // Storage refused. The switch still holds for this visit.
+    }
+    refresh()
+  })
 })()

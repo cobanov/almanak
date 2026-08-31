@@ -48,6 +48,9 @@ for (const [pkg, file] of wanted) {
 copyFileSync(join(root, 'landing', 'index.html'), join(dist, 'index.html'))
 // The page's behaviour lives in a file, because the CSP refuses inline script.
 copyFileSync(join(root, 'landing', 'landing.js'), join(dist, 'landing.js'))
+// The language has to be settled before the first paint, so this one is loaded
+// synchronously from <head> rather than deferred with the rest.
+copyFileSync(join(root, 'landing', 'lang-boot.js'), join(dist, 'lang-boot.js'))
 
 // The SIL Open Font License requires the licence to travel with the fonts, and
 // we serve the woff2 files ourselves.
