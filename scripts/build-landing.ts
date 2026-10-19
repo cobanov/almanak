@@ -60,6 +60,10 @@ copyFileSync(join(root, 'licenses', 'IBM-Plex-OFL.txt'), join(fontDir, 'LICENSE.
 // cached copy of a site that has moved. This one deletes itself.
 copyFileSync(join(root, 'landing', 'sw.js'), join(dist, 'sw.js'))
 
+// The landing's favicon lives at the root, outside /app/ and its noindex header,
+// so favicon services that crawl the landing page can pick it up.
+copyFileSync(join(root, 'public', 'icon.svg'), join(dist, 'icon.svg'))
+
 const assets = join(root, 'landing', 'assets')
 if (existsSync(assets)) {
   cpSync(assets, join(dist, 'assets'), { recursive: true })
